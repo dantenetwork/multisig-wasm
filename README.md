@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: kay
  * @Date: 2021-06-04 10:54:13
- * @LastEditTime: 2021-06-08 11:50:08
+ * @LastEditTime: 2021-06-08 14:12:27
  * @LastEditors: kay
 -->
 
@@ -172,11 +172,11 @@ e.g:
 
 2、Approve
 
-see [Approve proposal](####approve)
+see [Approve proposal](#####-Approve)
 
 ### Execute
 
-see [Exectue proposal](##Execute-proposal)
+see [Exectue proposal](##-Execute-proposal)
 
 ## Test Case
 
