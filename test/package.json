@@ -1,0 +1,19 @@
+{
+  "name": "multisig",
+  "version": "1.0.0",
+  "description": "test for tokentest",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "mocha": "./node_modules/mocha/bin/mocha"
+  },
+  "author": "virgil",
+  "license": "ISC",
+  "dependencies": {
+    "web3": "github:PlatONnetwork/client-sdk-js#0.15.1-develop"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^8.4.0"
+  }
+}
