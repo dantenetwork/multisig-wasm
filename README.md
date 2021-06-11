@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: kay
  * @Date: 2021-06-04 10:54:13
- * @LastEditTime: 2021-06-08 14:12:27
+ * @LastEditTime: 2021-06-08 14:19:37
  * @LastEditors: kay
 -->
 
@@ -88,7 +88,7 @@ e.g:
 ]
 ```
 
-##### Approve
+#### Approve
 
 Only manager can approve proposal
 
@@ -172,12 +172,12 @@ e.g:
 
 2、Approve
 
-see [Approve proposal](#####-Approve)
+see [Approve proposal](####Approve)
 
 ### Execute
 
-see [Exectue proposal](##-Execute-proposal)
+see [Exectue proposal](##Execute-proposal)
 
 ## Test Case
 
-[Multisig WSAM constract Test](test/README.md)
+[Multisig WSAM constract Test](test)

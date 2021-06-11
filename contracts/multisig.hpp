@@ -2,7 +2,7 @@
  * @Description:
  * @Author: kay
  * @Date: 2021-06-01 11:00:40
- * @LastEditTime: 2021-06-07 17:01:11
+ * @LastEditTime: 2021-06-11 09:58:52
  * @LastEditors: kay
  */
 
@@ -58,6 +58,14 @@ CONTRACT Multisig : public platon::Contract {
   ACTION bool approve(const std::string& proposal_name);
 
   ACTION bool execute(const std::string& proposal_name);
+
+ protected:
+  PLATON_EVENT1(Propose, std::string, std::string, std::string, u128,
+                int64_t);
+  PLATON_EVENT1(Approve, std::string);
+  PLATON_EVENT1(Execute, std::string);
+  PLATON_EVENT1(AddManagers, std::string, std::set<std::string>, uint8_t);
+  PLATON_EVENT1(RemoveManagers, std::string, std::set<std::string>, uint8_t);
 
  private:
   platon::StorageType<"managers"_n, std::set<std::string>> managers_;

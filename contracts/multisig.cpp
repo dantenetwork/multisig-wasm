@@ -2,7 +2,7 @@
  * @Description:
  * @Author: kay
  * @Date: 2021-06-01 11:00:48
- * @LastEditTime: 2021-06-07 17:52:59
+ * @LastEditTime: 2021-06-11 10:01:12
  * @LastEditors: kay
  */
 
@@ -33,6 +33,8 @@ bool Multisig::propose(const std::string& proposal_name,
                                         : platon_timestamp() + expiration;
   proposals_.insert(proposal_name,
                     Proposal{contract_addr, to, amount, expire_time});
+  PLATON_EMIT_EVENT1(Propose, proposal_name, contract_addr, to, amount,
+                     expiration);
   return true;
 }
 
@@ -53,6 +55,7 @@ bool Multisig::approve(const std::string& proposal_name) {
   } else {
     update_managers_[proposal_name].approvers.insert(manager);
   }
+  PLATON_EMIT_EVENT1(Approve, proposal_name);
   return true;
 }
 
@@ -69,6 +72,7 @@ bool Multisig::add_managers(const std::string& proposal_name,
                 "requires exceed managers size.");
   update_managers_.insert(proposal_name,
                           Manager{new_managers, {}, 1, requires});
+  PLATON_EMIT_EVENT1(AddManagers, proposal_name, new_managers, requires);
   return true;
 }
 
@@ -84,7 +88,8 @@ bool Multisig::remove_managers(const std::string& proposal_name,
   platon_assert(requires <= managers.size() - old_managers.size(),
                 "requires exceed managers size.");
   update_managers_.insert(proposal_name,
-                         Manager{old_managers, {}, 0, requires});
+                          Manager{old_managers, {}, 0, requires});
+  PLATON_EMIT_EVENT1(RemoveManagers, proposal_name, old_managers, requires);
   return true;
 }
 
@@ -127,6 +132,7 @@ bool Multisig::execute(const std::string& proposal_name) {
   } else {
     platon_assert(false, "proposal not exists.");
   }
+  PLATON_EMIT_EVENT1(Execute, proposal_name);
   return result;
 }
 
