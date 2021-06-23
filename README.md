@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: kay
  * @Date: 2021-06-04 10:54:13
- * @LastEditTime: 2021-06-08 14:19:37
+ * @LastEditTime: 2021-06-23 17:53:57
  * @LastEditors: kay
 -->
 
@@ -16,11 +16,8 @@ platon-truffle compile
 
 ## Deploy contract
 
-### unlock wallet
-
 ```sh
-platon-truffle console
-web3.platon.personal.unlockAccount(address, passwords)
+mv deploy.sh.example deploy.sh
 ```
 
 ### deploy contract

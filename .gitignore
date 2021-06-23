@@ -35,6 +35,7 @@ build
 
 test/*
 !test/package.json
-!test/test.js
+!test/*_test.js
 !test/README.md
+!test/*.example
 .vscode
