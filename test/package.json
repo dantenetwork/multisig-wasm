@@ -4,12 +4,15 @@
   "description": "test for tokentest",
   "main": "index.js",
   "scripts": {
+    "deploy": "node deploy.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "mocha": "./node_modules/mocha/bin/mocha"
+    "mocha": "./node_modules/mocha/bin/mocha *_test.js"
   },
   "author": "virgil",
   "license": "ISC",
   "dependencies": {
+    "fs-extra": "^10.0.0",
+    "path": "^0.12.7",
     "web3": "github:PlatONnetwork/client-sdk-js#0.15.1-develop"
   },
   "devDependencies": {
