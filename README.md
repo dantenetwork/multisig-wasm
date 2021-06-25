@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: kay
  * @Date: 2021-06-04 10:54:13
- * @LastEditTime: 2021-06-23 17:53:57
+ * @LastEditTime: 2021-06-25 14:23:01
  * @LastEditors: kay
 -->
 
@@ -16,11 +16,16 @@ platon-truffle compile
 
 ## Deploy contract
 
+### deploy contract
+
+1、unlock wallet
+
 ```sh
-mv deploy.sh.example deploy.sh
+platon-truffle console
+web3.platon.personal.unlockAccount(address, passwords)
 ```
 
-### deploy contract
+2、deploy
 
 ```sh
 platon-truffle deploy --wasm --contract-name multisig --params '[[Manager1_Address, Manager2_Address, ....], Requires]'
@@ -35,6 +40,8 @@ params:
 
 - requires: requires minimum mangers
 
+or run the [deploy.js](test/deploy.js) script to deploy the contract.
+
 ## Usage
 
 Creating constract object
@@ -45,29 +52,65 @@ var contractAddr = "";      // multisig contract address
 var multisig = new web3.platon.Contract(abi,contractAddr,{vmType: 1 });
 ```
 
-### Propose a transfer proposal
+Only managers can call multisig contract.
+
+### Propose call other contract proposal
 
 ```js
-multisig.methods.propose(proposal_name, contract_addr, to, amount, expiration).send({
-    from: sender,gas: 999999
+multisig.methods.propose(PROPOSAL_NAME, CONTRACT_ADDRESS, PARAMETERS_BYTES, EXPIRATION).send({
+    from: sender, gas: 999999
 }).on('receipt', function(receipt) {
     console.log(receipt);
 }).on('error', console.error);
 ```
 
-only managers can propose a proposal.
+propose params:
+
+- **PROPOSAL_NAME**: Transfer proposal name.
+
+- **CONTRACT_ADDRESS**: Other contract address.
+
+- **PARAMETERS_BYTES**: The encoded ABI byte code to send via a transaction or call.
+
+- **EXPIRATION(ms)**: After `EXPIRATION(ms)` this proposal will be unvalid, if `expiration <= 0` default one day.
+
+### Propose transfer LAT proposal
+
+```js
+multisig.methods.propose_transfer(PROPOSAL_NAME, TO, AMOUNT, EXPIRATION).send({
+    from: sender, gas: 999999
+}).on('receipt', function(receipt) {
+    console.log(receipt);
+}).on('error', console.error);
+```
 
 propose params:
 
-- **proposal_name**: Transfer proposal name
+- **PROPOSAL_NAME**: Transfer LAT proposal name.
 
-- **contract_addr**: PRC20Address, if transfer `LAT` contract_addr = "lat1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq542u6a"
+- **TO**: Receipt address.
 
-- **to**: Address for token receipts
+- **AMOUNT**: transfer amount.
 
-- **amount**: Transfer amount
+- **EXPIRATION(ms)**: After `EXPIRATION(ms)` this proposal will be unvalid, if `expiration <= 0` default one day.
 
-- **expiration(ms)**: After `expiration(ms)` this proposal will be unvalid, if `expiration <= 0` default one day.
+### Propose update managers proposal
+
+```js
+multisig.methods.propose_update_managers(PROPOSAL_NAME, [MANAGER1, MANAGER2,...], REQUIRES, EXPIRATION).send({
+    from: sender, gas: 999999
+}).on('receipt', function(receipt) {
+    console.log(receipt);
+}).on('error', console.error);
+```
+
+- **PROPOSAL_NAME**: update managers proposal name
+
+- **MANAGERS**: Array list of new managers
+
+- **REQUIRES**: New minimum requires
+
+- **EXPIRATION(ms)**: After `EXPIRATION(ms)` this proposal will be unvalid, if `expiration <= 0` default one day.
 
 ### Approve proposal
 
@@ -75,14 +118,39 @@ propose params:
 
 ```js
 multisig.methods.get_proposal(proposal_name).call(console.log)
+```
 
-e.g:
+return an array of `Porposal` type
+
+```js
 [
-  'lat1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq542u6a',     // PRC20Address, "lat1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq542u6a" means transfer LAT token
-  'lat15nqll7dfn4km00lz6nd4ahxya5gals9d2f7sn8',     // to address
-  '100000000000000',                                // transfer amount
-  '1623061218155'                                   // expiration time
+    GeneralProposal,
+    TransferProposal,
+    UpdateManagersProposal
 ]
+```
+
+```c++
+struct GeneralProposal {
+  int64_t expiration;
+  Address contract_addr;
+  bytes paras;
+  std::set<std::string> approvers;
+};
+
+struct TransferProposal {
+  int64_t expiration;
+  Address to;
+  u128 amount;
+  std::set<std::string> approvers;
+};
+
+struct UpdateManagersProposal {
+  uint8_t requires;
+  int64_t expiration;
+  std::set<std::string> managers;
+  std::set<std::string> approvers;
+};
 ```
 
 #### Approve
@@ -99,21 +167,7 @@ multisig.methods.approve(proposal_name).send({
 
 ## Execute proposal
 
-1、Check approve information
-
-```js
-multisig.methods.get_approval(proposal_name).call(console.log)
-
-e.g:
-[
-  'lat1q949tup3qkgdvu223qu5yyee4knhfchp40lpgh',       // approve manager address
-  'lat17jemcasgq2vdq0urysvldn84q7dxe3ekrlhf39',
-]
-```
-
-Only the number of proposer more than `requires`, anyone can execute proposal.
-
-2、Execute
+Only the number of proposer more than `requires`, and one of manager can execute proposal.
 
 ```js
 multisig.methods.execute(proposal_name).send({
@@ -122,58 +176,6 @@ multisig.methods.execute(proposal_name).send({
     console.log(receipt);
 }).on('error', console.error);
 ```
-
-## Add or remove managers
-
-### Propose proposal
-
-```js
-// add managers proposal
-multisig.methods.add_managers(proposal_name, [new_manager1, new_manager2,...], new_requires).send({
-    from: sender, gas: 999999
-}).on('receipt', function(receipt) {
-    console.log(receipt);
-}).on('error', console.error);
-
-// remove managers proposal
-multisig.methods.remove_managers(proposal_name, [old_manager1, old_manager2, ...], new_requires).send({
-    from: sender, gas: 999999
-}).on('receipt', function(receipt) {
-    console.log(receipt);
-}).on('error', console.error);
-```
-
-propose params:
-
-- **proposal_name**: add or remove proposal name
-
-- **managers**: Array list of add or remove managers
-
-- **new_requires**: new minimum requires
-
-### Approve add managers proposal
-
-1、Check proposal
-
-```js
-multisig.methods.get_update_managers_proposal(proposal_name).call(console.log)
-
-e.g:
-[
-  ["lat1c9s7qxxljhh2rhy48njr0pluxw960f6ge0lyj7"],       // add or remove manager's address
-  [],                                                   // approved managers
-  1,                                                    // action_type, 0 delete managers, 1 add manager
-  2,                                                    // new requires
-]
-```
-
-2、Approve
-
-see [Approve proposal](####Approve)
-
-### Execute
-
-see [Exectue proposal](##Execute-proposal)
 
 ## Test Case
 

@@ -2,12 +2,12 @@
  * @Description: 
  * @Author: kay
  * @Date: 2021-06-22 17:19:27
- * @LastEditTime: 2021-06-23 17:29:23
+ * @LastEditTime: 2021-06-25 10:54:41
  * @LastEditors: kay
  */
 const chai = require('chai');
 const expect = chai.expect;
-const config = require('./config_test');
+const config = require('./config');
 
 // Token 转账
 (async () => {

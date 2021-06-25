@@ -1,4 +1,0 @@
-#! /bin/bash
-platon-truffle compile
-platon attach http://192.168.1.65:6789 -exec 'personal.unlockAccount(OWNER_ADDRESS, PASSWORDS, UNLOCK_TIME)'
-platon-truffle deploy --wasm --contract-name multisig --params '[[MANAGER_ACCOUNT_1, MANAGER_ACCOUNT_2, MANAGER_ACCOUNT_3], REQUIRES]' 

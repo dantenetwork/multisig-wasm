@@ -2,7 +2,7 @@
  * @Description:
  * @Author: kay
  * @Date: 2021-06-16 15:56:31
- * @LastEditTime: 2021-06-23 11:05:51
+ * @LastEditTime: 2021-06-25 14:25:05
  * @LastEditors: kay
  */
 
@@ -48,7 +48,7 @@ bool multisig::propose_transfer(const std::string& proposal_name,
   int64_t expire_time = get_expiration_time(expiration);
   transfer_proposals.insert(proposal_name,
                             TransferProposal{expire_time, to, amount});
-  PLATON_EMIT_EVENT1(ProposeTransfer, sender, proposal_name, to, amount,
+  PLATON_EMIT_EVENT2(ProposeTransfer, sender, proposal_name, to, amount,
                      expiration);
   return true;
 };
@@ -67,6 +67,8 @@ bool multisig::propose_update_managers(
   update_managers_proposals.insert(
       proposal_name,
       UpdateManagersProposal{new_requires, expire_time, new_managers, {}});
+  PLATON_EMIT_EVENT2(ProposeUpdateManagers, sender, proposal_name, new_managers,
+                     new_requires, expiration);
   return true;
 }
 

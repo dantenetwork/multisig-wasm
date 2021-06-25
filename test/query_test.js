@@ -2,12 +2,12 @@
  * @Description: 
  * @Author: kay
  * @Date: 2021-06-23 17:19:25
- * @LastEditTime: 2021-06-23 17:29:43
+ * @LastEditTime: 2021-06-24 17:58:50
  * @LastEditors: kay
  */
 const chai = require('chai');
 const expect = chai.expect;
-const config = require('./config_test');
+const config = require('./config');
 
 // 合约的查询接口
 describe('Multisig Test of Query', () => {

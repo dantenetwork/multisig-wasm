@@ -2,10 +2,11 @@
  * @Description:
  * @Author: kay
  * @Date: 2021-06-16 15:56:25
- * @LastEditTime: 2021-06-22 11:41:34
+ * @LastEditTime: 2021-06-25 14:24:47
  * @LastEditors: kay
  */
 
+#undef NDEBUG
 #include <platon/platon.hpp>
 using namespace platon;
 
@@ -107,9 +108,10 @@ CONTRACT multisig : public platon::Contract {
 
  protected:
   PLATON_EVENT2(Propose, Address, std::string, Address, bytes, int64_t);
+  PLATON_EVENT2(ProposeTransfer, Address, std::string, Address, u128, int64_t);
+  PLATON_EVENT2(ProposeUpdateManagers, Address, std::string, std::set<std::string>, uint8_t, int64_t);
   PLATON_EVENT1(Approve, Address, std::string);
   PLATON_EVENT1(Execute, Address, std::string);
-  PLATON_EVENT1(ProposeTransfer, Address, std::string, Address, u128, int64_t);
 
  private:
   platon::db::Map<"propsals"_n, std::string, GeneralProposal> general_proposals;

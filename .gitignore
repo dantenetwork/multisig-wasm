@@ -33,9 +33,7 @@
 
 build
 
-test/*
-!test/package.json
-!test/*_test.js
-!test/README.md
-!test/*.example
+test/node_modules
+test/*.json
+test/*.lock
 .vscode

@@ -8,7 +8,7 @@
 
 const chai = require('chai');
 const expect = chai.expect;
-const config = require('./config_test');
+const config = require('./config');
 
 // 合约的执行接口
 describe('Multisig Action Test of Update Managers Proposal Cases', () => {
