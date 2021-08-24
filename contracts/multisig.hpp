@@ -2,7 +2,7 @@
  * @Description:
  * @Author: kay
  * @Date: 2021-06-16 15:56:25
- * @LastEditTime: 2021-06-25 14:24:47
+ * @LastEditTime: 2021-08-24 16:05:30
  * @LastEditors: kay
  */
 
@@ -72,20 +72,60 @@ CONTRACT multisig : public platon::Contract {
   CONST uint8_t get_requires();
   CONST Proposal get_proposal(const std::string& proposal_name);
 
-  // propose call other contract proposal
+  /**
+   * Propose action. Propose a proposal of calling other contract.
+   *
+   * @param proposal_name - proposal name.
+   * @param contract_addr - call other contract's address.
+   * @param paras - the encoded ABI byte code to send via a transaction or call.
+   * @param expiration - after `expiration(ms)` this proposal will be unvalid,
+   * if `expiration <= 0` default one day.
+   */
   ACTION bool propose(const std::string& proposal_name,
                       const Address& contract_addr, const bytes& paras,
                       const int64_t& expiration);
-  // propose transfer LAT proposal
+
+  /**
+   * Propose transfer LAT action. Propose a proposal of transfer LAT to ${to}.
+   *
+   * @param proposal_name - proposal name.
+   * @param to - receipt address.
+   * @param amount - transfer amount.
+   * @param expiration - after `expiration(ms)` this proposal will be unvalid,
+   * if `expiration <= 0` default one day.
+   */
   ACTION bool propose_transfer(const std::string& proposal_name,
                                const Address& to, const u128& amount,
                                const int64_t& expiration);
-  // propose update managers
+
+  /**
+   * Propose update(add or remove) managers action. Propose a proposal of
+   * updating managers
+   *
+   * @param proposal_name - proposal name.
+   * @param new_managers - new multisig contract managers list.
+   * @param new_requires - new minimum requires.
+   * @param expiration - after `expiration(ms)` this proposal will be unvalid,
+   * if `expiration <= 0` default one day.
+   */
   ACTION bool propose_update_managers(const std::string& proposal_name,
                                       const std::set<std::string>& new_managers,
                                       const uint8_t& new_requires,
                                       const int64_t& expiration);
+
+  /**
+   * Approve action. Approve proposal and only managers can execute.
+   *
+   * @param proposal_name - proposal name.
+   */
   ACTION bool approve(const std::string& proposal_name);
+
+  /**
+   * Execute action. Execute proposal, only approvers more then "requires"
+   * then it can be execute.
+   *
+   * @param proposal_name - proposal name.
+   */
   ACTION bool execute(const std::string& proposal_name);
 
   static inline int64_t get_expiration_time(const int64_t& expiration) {
@@ -106,10 +146,22 @@ CONTRACT multisig : public platon::Contract {
                   "multisig: require manager");
   }
 
+  static inline auto platon_call(const Address& contract_addr,
+                                 const bytes& paras) {
+    bool result = platon::platon_call(contract_addr, paras, uint32_t(0), uint32_t(0));
+    if (!result) {
+      return std::pair<bool, bool>(false, false);
+    }
+    bool return_value;
+    get_call_output(return_value);
+    return std::pair<bool, bool>(return_value, true);
+  }
+
  protected:
   PLATON_EVENT2(Propose, Address, std::string, Address, bytes, int64_t);
   PLATON_EVENT2(ProposeTransfer, Address, std::string, Address, u128, int64_t);
-  PLATON_EVENT2(ProposeUpdateManagers, Address, std::string, std::set<std::string>, uint8_t, int64_t);
+  PLATON_EVENT2(ProposeUpdateManagers, Address, std::string,
+                std::set<std::string>, uint8_t, int64_t);
   PLATON_EVENT1(Approve, Address, std::string);
   PLATON_EVENT1(Execute, Address, std::string);
 
