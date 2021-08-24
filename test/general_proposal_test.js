@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: kay
  * @Date: 2021-06-22 16:25:12
- * @LastEditTime: 2021-06-25 10:37:11
+ * @LastEditTime: 2021-08-24 16:27:22
  * @LastEditors: kay
  */
 
@@ -100,20 +100,20 @@ describe('Multisig Action Test of Call Other Contract Cases', () => {
 
   // 测试 manager approve 提案
   describe('Approve expired proposal', () => {
+    before(async function () {
+      config.contract.methods.get_proposal(config.expiredProposalName).call((error, result) => {
+        if (!result || parseInt(result[1][0]) == 0) {
+          (async () => {
+            const signTx = await config.signTransaction("propose_transfer", config.manager1PrivateKey, [config.expiredProposalName, config.ownerAddress, config.TOKEN, 1]);
+            const receipt = await config.web3.platon.sendSignedTransaction(signTx.rawTransaction);
+            console.log("transaction id: " + receipt.transactionHash, ", transaction status: " + receipt.status);
+          })();
+        }
+      });
+    });
+
     it("Approve " + config.expiredProposalName + ", status should equal true", async function () {
       this.timeout(0);
-      // 添加过期提案
-      (async () => {
-        config.contract.methods.get_proposal(config.expiredProposalName).call((error, result) => {
-          if (!result || parseInt(result[1][0]) == 0) {
-            (async () => {
-              const signTx = await config.signTransaction("propose_transfer", config.manager1PrivateKey, [config.expiredProposalName, config.ownerAddress, config.TOKEN, 1]);
-              const receipt = await config.web3.platon.sendSignedTransaction(signTx.rawTransaction);
-              console.log("transaction id: " + receipt.transactionHash, ", transaction status: " + receipt.status);
-            })();
-          }
-        });
-      })();
       // manager2 发送 approve 交易
       let signTx = await config.signTransaction("approve", config.manager2PrivateKey, [config.expiredProposalName]);
       try {

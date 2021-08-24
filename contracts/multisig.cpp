@@ -2,7 +2,7 @@
  * @Description:
  * @Author: kay
  * @Date: 2021-06-16 15:56:31
- * @LastEditTime: 2021-06-25 14:25:05
+ * @LastEditTime: 2021-08-24 16:05:48
  * @LastEditors: kay
  */
 
@@ -13,7 +13,6 @@ namespace dante {
 void multisig::init(const std::set<std::string>& managers,
                     const uint8_t& requires) {
   manager_table.self().managers = managers;
-  // set_owner(platon_address().toString());
   platon_assert(requires <= managers.size(),
                 "mulitsig: requires exceed managers size.");
   manager_table.self().requires = requires;
@@ -90,7 +89,8 @@ bool multisig::approve(const std::string& proposal_name) {
     platon_assert(update_managers_proposals[proposal_name].expiration >=
                       platon_timestamp(),
                   "multisig: proposal has expired.");
-    update_managers_proposals[proposal_name].approvers.insert(sender.toString());
+    update_managers_proposals[proposal_name].approvers.insert(
+        sender.toString());
   } else {
     platon_assert(false, "multisig: proposal not exists.");
   }
@@ -109,13 +109,13 @@ bool multisig::execute(const std::string& proposal_name) {
     auto proposal = general_proposals[proposal_name];
     platon_assert(proposal.approvers.size() >= requires,
                   "mulitsig: not enough approvers.");
-    bool result = platon_call(proposal.contract_addr, proposal.paras,
-                              uint32_t(0), uint32_t(0));
-    if (result) {
+    auto result = multisig::platon_call(proposal.contract_addr, proposal.paras);
+    if (result.second && result.first) {
       general_proposals.erase(proposal_name);
+    } else {
+      DEBUG("multisg: call other contract failed");
+      platon_revert();
     }
-    PLATON_EMIT_EVENT1(Execute, sender, proposal_name);
-    return result;
     // execute transfer propose
   } else if (transfer_proposals.contains(proposal_name)) {
     auto transfer = transfer_proposals[proposal_name];
@@ -124,9 +124,10 @@ bool multisig::execute(const std::string& proposal_name) {
     bool result = platon_transfer(transfer.to, Energon(transfer.amount));
     if (result) {
       transfer_proposals.erase(proposal_name);
+    } else {
+      DEBUG("multisg: transfer LAT failed");
+      platon_revert();
     }
-    PLATON_EMIT_EVENT1(Execute, sender, proposal_name);
-    return result;
   } else if (update_managers_proposals.contains(proposal_name)) {
     auto update = update_managers_proposals[proposal_name];
     platon_assert(update.approvers.size() >= requires,
@@ -134,12 +135,12 @@ bool multisig::execute(const std::string& proposal_name) {
     manager_table.self().managers = update.managers;
     manager_table.self().requires = update.requires;
     update_managers_proposals.erase(proposal_name);
-    PLATON_EMIT_EVENT1(Execute, sender, proposal_name);
-    return true;
   } else {
-    platon_assert(false, "mulitsig: proposal not exists.");
-    return false;
+    DEBUG("mulitsig: proposal not exists.");
+    platon_revert();
   }
+  PLATON_EMIT_EVENT1(Execute, sender, proposal_name);
+  return true;
 }
 
 std::set<std::string> multisig::get_managers() {
@@ -156,13 +157,13 @@ uint8_t multisig::get_requires() {
 
 Proposal multisig::get_proposal(const std::string& proposal_name) {
   auto proposal = Proposal{};
-  if(general_proposals.contains(proposal_name)) {
+  if (general_proposals.contains(proposal_name)) {
     proposal.general_proposal = general_proposals[proposal_name];
   }
-  if(transfer_proposals.contains(proposal_name)) {
+  if (transfer_proposals.contains(proposal_name)) {
     proposal.transfer_proposal = transfer_proposals[proposal_name];
   }
-  if(update_managers_proposals.contains(proposal_name)) {
+  if (update_managers_proposals.contains(proposal_name)) {
     proposal.update_managers_proposal =
         update_managers_proposals[proposal_name];
   }
