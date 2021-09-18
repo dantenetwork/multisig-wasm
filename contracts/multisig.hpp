@@ -2,7 +2,7 @@
  * @Description:
  * @Author: kay
  * @Date: 2021-06-16 15:56:25
- * @LastEditTime: 2021-08-24 16:05:30
+ * @LastEditTime: 2021-09-18 10:41:22
  * @LastEditors: kay
  */
 
@@ -148,7 +148,8 @@ CONTRACT multisig : public platon::Contract {
 
   static inline auto platon_call(const Address& contract_addr,
                                  const bytes& paras) {
-    bool result = platon::platon_call(contract_addr, paras, uint32_t(0), uint32_t(0));
+    bool result =
+        platon::platon_call(contract_addr, paras, uint32_t(0), uint32_t(0));
     if (!result) {
       return std::pair<bool, bool>(false, false);
     }
@@ -176,6 +177,7 @@ CONTRACT multisig : public platon::Contract {
 
 PLATON_DISPATCH(
     multisig,
-    (init)(propose)(propose_transfer)(propose_update_managers)(approve)(execute)(get_managers)(get_owner)(get_requires)(get_proposal))
+    (init)(propose)(propose_transfer)(propose_update_managers)(approve)(
+        execute)(get_managers)(get_owner)(get_requires)(get_proposal))
 
 }  // namespace dante
